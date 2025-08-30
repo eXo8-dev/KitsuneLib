@@ -1,4 +1,4 @@
-package me.eXo8_.kitsunelib.logger;
+package me.eXo8_.kitsunelib.utils;
 
 public final class Logger
 {
@@ -14,11 +14,15 @@ public final class Logger
         logger.info(PREFIX + str);
     }
 
-    public static void warning(String str) {
+    public static void info(String format, Object... args) {
+        logger.info(PREFIX + String.format(format, args));
+    }
+
+    public static void warn(String str) {
         logger.warning(PREFIX + str);
     }
 
-    public static void severe(String str) {
+    public static void error(String str) {
         logger.severe(PREFIX + str);
     }
 }

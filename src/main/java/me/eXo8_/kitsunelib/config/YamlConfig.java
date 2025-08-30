@@ -1,7 +1,7 @@
 package me.eXo8_.kitsunelib.config;
 
 import me.eXo8_.kitsunelib.KitsuneLib;
-import me.eXo8_.kitsunelib.logger.Logger;
+import me.eXo8_.kitsunelib.utils.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.ComponentDecoder;
 import net.kyori.adventure.text.serializer.ComponentEncoder;
@@ -55,7 +55,7 @@ abstract public class YamlConfig implements Config
     public void save()
     {
         try { config.save(configFile); }
-        catch (IOException e) { Logger.severe("Failed to save config: " + configFile.getName()); }
+        catch (IOException e) { Logger.error("Failed to save config: " + configFile.getName()); }
     }
 
     @Override

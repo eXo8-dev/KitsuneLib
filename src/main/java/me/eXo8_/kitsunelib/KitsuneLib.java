@@ -1,6 +1,6 @@
 package me.eXo8_.kitsunelib;
 
-import me.eXo8_.kitsunelib.logger.Logger;
+import me.eXo8_.kitsunelib.utils.Logger;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 

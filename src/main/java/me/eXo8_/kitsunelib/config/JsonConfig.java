@@ -2,7 +2,7 @@ package me.eXo8_.kitsunelib.config;
 
 import com.google.gson.*;
 import me.eXo8_.kitsunelib.KitsuneLib;
-import me.eXo8_.kitsunelib.logger.Logger;
+import me.eXo8_.kitsunelib.utils.Logger;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +41,7 @@ public abstract class JsonConfig implements Config
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8)) {
             GSON.toJson(config, writer);
         } catch (IOException e) {
-            Logger.severe("Failed to save JSON config: " + configFile.getName());
+            Logger.error("Failed to save JSON config: " + configFile.getName());
         }
     }
 
@@ -55,7 +55,7 @@ public abstract class JsonConfig implements Config
         }
         catch (IOException e)
         {
-            Logger.severe("Failed to load JSON config: " + configFile.getName());
+            Logger.error("Failed to load JSON config: " + configFile.getName());
             this.config = new JsonObject();
         }
 
