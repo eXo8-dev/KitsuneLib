@@ -8,12 +8,11 @@ public final class KitsuneLib
 {
     private static JavaPlugin plugin;
 
-
     public static void init(JavaPlugin plugin)
     {
         KitsuneLib.plugin = plugin;
         Logger.init(plugin.getLogger());
-
+        Logger.info("&aEnabled ");
     }
 
     public static @NotNull JavaPlugin getPlugin() {

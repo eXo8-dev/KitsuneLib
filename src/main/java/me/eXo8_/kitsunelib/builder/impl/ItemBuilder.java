@@ -1,10 +1,11 @@
-package me.eXo8_.kitsunelib.builder;
+package me.eXo8_.kitsunelib.builder.impl;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
 import com.google.common.collect.Multimap;
 import io.papermc.paper.datacomponent.DataComponentBuilder;
 import io.papermc.paper.datacomponent.DataComponentType;
+import me.eXo8_.kitsunelib.builder.Builder;
 import me.eXo8_.kitsunelib.utils.ColorUtil;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -31,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ItemBuilder
+public class ItemBuilder implements Builder<ItemStack>
 {
     private final ItemStack item;
     private final ItemMeta meta;
@@ -363,6 +364,7 @@ public class ItemBuilder
         return this;
     }
 
+    @Override
     public ItemStack build()
     {
         item.setItemMeta(meta);

@@ -1,18 +1,24 @@
 package me.eXo8_.kitsunelib.database;
 
-import me.eXo8_.kitsunelib.KitsuneLib;
-
-import java.io.File;
 import java.sql.*;
 import java.util.concurrent.CompletableFuture;
 
-public class SQLiteDatabase implements Database
+public class MySQLDB implements Database
 {
     private Connection connection;
-    private final File file;
+    private final String host;
+    private final int port;
+    private final String database;
+    private final String user;
+    private final String password;
 
-    public SQLiteDatabase(String databaseName) {
-        this.file = new File(KitsuneLib.getPlugin().getDataFolder(), databaseName);
+    public MySQLDB(String host, int port, String database, String user, String password)
+    {
+        this.host = host;
+        this.port = port;
+        this.database = database;
+        this.user = user;
+        this.password = password;
     }
 
     @Override
@@ -21,14 +27,17 @@ public class SQLiteDatabase implements Database
         try
         {
             if (connection != null && !connection.isClosed()) return;
-            connection = DriverManager.getConnection("jdbc:sqlite:" + file.getAbsolutePath());
-        }
-        catch (SQLException e) {e.printStackTrace();}
+
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://" + host + ":" + port + "/" + database + "?useSSL=false&autoReconnect=true",
+                    user,
+                    password
+            );
+        } catch (SQLException e) {e.printStackTrace();}
     }
 
     @Override
-    public void disconnect()
-    {
+    public void disconnect() {
         try {if (connection != null) connection.close();}
         catch (SQLException e) {e.printStackTrace();}
     }
@@ -47,8 +56,7 @@ public class SQLiteDatabase implements Database
         {
             for (int i = 0; i < params.length; i++) st.setObject(i + 1, params[i]);
             st.executeUpdate();
-        }
-        catch (SQLException e) {e.printStackTrace();}
+        } catch (SQLException e) {e.printStackTrace();}
     }
 
     @Override

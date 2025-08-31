@@ -11,18 +11,18 @@ public final class Logger
     }
 
     public static void info(String str) {
-        logger.info(PREFIX + str);
+        logger.info(ColorUtil.parse(PREFIX + str));
     }
 
     public static void info(String format, Object... args) {
-        logger.info(PREFIX + String.format(format, args));
+        logger.info(ColorUtil.parse(PREFIX + String.format(format, args)));
     }
 
     public static void warn(String str) {
-        logger.warning(PREFIX + str);
+        logger.warning(ColorUtil.parse(PREFIX + str));
     }
 
     public static void error(String str) {
-        logger.severe(PREFIX + str);
+        logger.severe(ColorUtil.parse(PREFIX + str));
     }
 }
