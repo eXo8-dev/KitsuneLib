@@ -96,8 +96,4 @@ public class ScrollGUI extends GUI
     public int getOffsetY() { return offsetY; }
     public int getScrollStepX() { return scrollStepX; }
     public int getScrollStepY() { return scrollStepY; }
-
-    public enum ScrollDirection {
-        UP, DOWN, LEFT, RIGHT
-    }
 }

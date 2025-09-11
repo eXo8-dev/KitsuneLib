@@ -43,6 +43,39 @@ public class SerializationUtil
         }
     }
 
+    public static String itemStackArrayToBase64(ItemStack[] items)
+    {
+        try (
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream)
+        ) {
+            dataOutput.writeInt(items.length);
+            for (ItemStack item : items) dataOutput.writeObject(item);
+            return Base64.getEncoder().encodeToString(outputStream.toByteArray());
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static ItemStack[] itemStackArrayFromBase64(String base64)
+    {
+        try (
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(base64));
+                BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)
+        ) {
+            int size = dataInput.readInt();
+            ItemStack[] items = new ItemStack[size];
+            for (int i = 0; i < size; i++) items[i] = (ItemStack) dataInput.readObject();
+            return items;
+        } catch (IOException | ClassNotFoundException e)
+        {
+            e.printStackTrace();
+            return new ItemStack[0];
+        }
+    }
+
     public static String itemStackToYaml(ItemStack item)
     {
         if (item == null)

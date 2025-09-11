@@ -30,13 +30,12 @@ public abstract class CachedDao<O, I> extends AbstractDao<O, I>
 
     private O loadFromDb(I id)
     {
-        final O[] result = (O[]) new Object[1];
-
-        db.executeQuery("SELECT * FROM " + table + " WHERE id=?", rs -> {
-            if (rs.next()) result[0] = mapRow(rs);
+        O[] result = (O[])(new Object[1]);
+        String idColumn = getIdColumnName();
+        this.db.executeQuery("SELECT * FROM " + this.table + " WHERE " + idColumn + "=?", (rs) -> {
+            if (rs.next()) result[0] = this.mapRow(rs);
         }, id);
-
-        return result[0];
+        return (O)result[0];
     }
 
     @Override
@@ -77,4 +76,5 @@ public abstract class CachedDao<O, I> extends AbstractDao<O, I>
 
     abstract protected void saveData(O object);
     abstract protected void updateData(O object);
+    abstract protected String getIdColumnName();
 }

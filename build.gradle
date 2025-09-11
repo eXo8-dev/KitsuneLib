@@ -26,4 +26,5 @@ tasks.named("jar") {
 shadowJar {
     archiveBaseName.set('KitsuneLib')
     archiveClassifier.set('')
+    archiveVersion.set('')
 }

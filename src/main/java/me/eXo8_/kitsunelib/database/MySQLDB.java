@@ -73,4 +73,9 @@ public class MySQLDB implements Database
     public CompletableFuture<Void> executeQueryAsync(String sql, QueryHandler handler, Object... params) {
         return CompletableFuture.runAsync(() -> executeQuery(sql, handler, params));
     }
+
+    @Override
+    public Connection getConnection() {
+        return connection;
+    }
 }

@@ -21,10 +21,17 @@ public class SQLiteDB implements Database
         try
         {
             if (connection != null && !connection.isClosed()) return;
+
+            File folder = KitsuneLib.getPlugin().getDataFolder();
+            if (!folder.exists()) folder.mkdirs();
+
+            if (!file.exists()) file.createNewFile();
+
             connection = DriverManager.getConnection("jdbc:sqlite:" + file.getAbsolutePath());
         }
-        catch (SQLException e) {e.printStackTrace();}
+        catch (Exception e) {e.printStackTrace();}
     }
+
 
     @Override
     public void disconnect()
@@ -64,5 +71,10 @@ public class SQLiteDB implements Database
     @Override
     public CompletableFuture<Void> executeQueryAsync(String sql, QueryHandler handler, Object... params) {
         return CompletableFuture.runAsync(() -> executeQuery(sql, handler, params));
+    }
+
+    @Override
+    public Connection getConnection() {
+        return connection;
     }
 }

@@ -1,0 +1,16 @@
+package me.eXo8_.kitsunelib.gui;
+
+public enum SaveType
+{
+    FULL,
+    STORAGE_ONLY,
+    ARMOR_ONLY,
+    OFFHAND_ONLY,
+    STORAGE_WITHOUT_ARMOR,
+    WITHOUT_OFFHAND,
+    WITHOUT_ARMOR,
+    ARMOR_AND_OFFHAND,
+    STORAGE_AND_ARMOR,
+    STORAGE_AND_OFFHAND,
+    CUSTOM
+}
