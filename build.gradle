@@ -9,6 +9,10 @@ version = '1.1'
 repositories {
     mavenCentral()
     maven {
+        name = "codemc-snapshots"
+        url = 'https://repo.codemc.io/repository/maven-snapshots/'
+    }
+    maven {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
     }
@@ -17,6 +21,7 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.2")
+    implementation 'net.wesjd:anvilgui:1.10.8-SNAPSHOT'
 }
 
 tasks.named("jar") {

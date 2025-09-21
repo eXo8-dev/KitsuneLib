@@ -36,7 +36,7 @@ public class PagedGUI extends GUI
         for (int i = start; i < end; i++)
         {
             int slot = i - start;
-            setVisualItem(slot, contents.get(i));
+            top(slot, contents.get(i));
         }
     }
 

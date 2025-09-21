@@ -1,11 +1,8 @@
 package me.eXo8_.kitsunelib.gui;
 
-import me.eXo8_.kitsunelib.KitsuneLib;
 import me.eXo8_.kitsunelib.utils.ColorUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
@@ -13,95 +10,128 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
-public class GUI implements Listener, InventoryHolder
+abstract public class GUI implements Listener, InventoryHolder
 {
     private final Inventory inventory;
-    protected final Map<Integer, Consumer<InventoryClickEvent>> slotEventMap = new HashMap<>();
-    private final Map<Class<? extends Event>, List<Consumer<? extends Event>>> eventHandlers = new HashMap<>();
-    private  Consumer<InventoryClickEvent> globalClickEvent;
+    private final Map<Integer, Consumer<InventoryClickEvent>> slotEventMap = new HashMap<>();
+    private final Map<Integer, Consumer<InventoryClickEvent>> playerSlotEventMap = new HashMap<>();
+    private final List<Consumer<InventoryClickEvent>> globalClickHandlers = new ArrayList<>();
     private GUI parent;
+    private Runnable onOpen;
 
-    public GUI(String title, int row)
+    private Player owner;
+
+    public GUI(String title, int row) {
+        this.inventory = Bukkit.createInventory(this, row * 9, ColorUtil.parse(title));
+    }
+
+    public GUI(Player player, String title, int row)
     {
         this.inventory = Bukkit.createInventory(this, row * 9, ColorUtil.parse(title));
-        Bukkit.getPluginManager().registerEvents(this, KitsuneLib.getPlugin());
+        this.owner = player;
     }
 
-    @EventHandler
-    public void onInventoryClick(InventoryClickEvent e) {
-        if (!e.getInventory().equals(this.inventory)) return;
-
-        int slot = e.getRawSlot();
-        if (globalClickEvent != null) globalClickEvent.accept(e);
-
-        Consumer<InventoryClickEvent> handler = slotEventMap.get(slot);
-        if (handler != null) handler.accept(e);
-    }
-
-    public <T extends Event> GUI onEvent(Class<T> eventClass, Consumer<T> handler)
+    public GUI setItemInternal(Inventory target, int slot, ItemStack item, Consumer<InventoryClickEvent> clickHandler, boolean isPlayerSlot)
     {
-        eventHandlers.computeIfAbsent(eventClass, k -> new ArrayList<>()).add(handler);
+        if (target != null && item != null) target.setItem(slot, item);
+
+        if (clickHandler != null)
+        {
+            if (isPlayerSlot) playerSlotEventMap.put(slot, clickHandler);
+            else slotEventMap.put(slot, clickHandler);
+        }
+
         return this;
     }
 
-    @EventHandler
-    public void handleGenericEvents(Event e)
-    {
-        List<Consumer<? extends Event>> handlers = eventHandlers.get(e.getClass());
-
-        if (handlers != null)
-            for (Consumer<? extends Event> h : handlers)
-                try {((Consumer<Event>) h).accept(e);} catch (ClassCastException ignored) {}
+    public GUI top(int slot, ItemStack item) {
+        return setItemInternal(inventory, slot, item, null, false);
     }
 
-    public GUI setVisualItem(int slot, ItemStack item)
+    public GUI top(int slot, ItemStack item, Consumer<InventoryClickEvent> handler) {
+        return setItemInternal(inventory, slot, item, handler, false);
+    }
+
+    public GUI top(int[] slots, ItemStack item)
     {
-        inventory.setItem(slot, item);
+        for (int slot : slots) top(slot, item);
         return this;
     }
 
-    public GUI setVisualItem(int[] slots, ItemStack item)
+    public GUI top(int[] slots, ItemStack item, Consumer<InventoryClickEvent> handler)
+    {
+        for (int slot : slots) top(slot, item, handler);
+        return this;
+    }
+
+    public void bottom(Player player, int slot, ItemStack item) {
+        setItemInternal(player.getInventory(), slot, item, null, true);
+    }
+
+    public void bottom(Player player, int slot, ItemStack item, Consumer<InventoryClickEvent> handler) {
+        setItemInternal(player.getInventory(), slot, item, handler, true);
+    }
+
+    public GUI bottom(Player player, int[] slots, ItemStack item)
     {
         for (int slot : slots)
-            setVisualItem(slot, item);
+            bottom(player, slot, item);
         return this;
     }
 
-    public GUI setLogicalItem(int slot, ItemStack item, Consumer<InventoryClickEvent> e)
-    {
-        inventory.setItem(slot, item);
-        slotEventMap.put(slot, e);
-        return this;
-    }
-
-    public GUI setLogicalItem(int[] slots, ItemStack item, Consumer<InventoryClickEvent> e)
+    public GUI bottom(Player player, int[] slots, ItemStack item, Consumer<InventoryClickEvent> handler)
     {
         for (int slot : slots)
-            setLogicalItem(slot, item, e);
+            bottom(player, slot, item, handler);
         return this;
     }
 
-    public GUI setGlobalСlickEvent(int slot, ItemStack item, Consumer<InventoryClickEvent> e)
+    public void bottom(int slot, ItemStack item) {
+        setItemInternal(owner.getInventory(), slot, item, null, true);
+    }
+
+    public void bottom(int slot, ItemStack item, Consumer<InventoryClickEvent> handler) {
+        setItemInternal(owner.getInventory(), slot, item, handler, true);
+    }
+
+    public GUI bottom(int[] slots, ItemStack item)
     {
-        inventory.setItem(slot, item);
-        globalClickEvent = e;
+        for (int slot : slots)
+            bottom(owner, slot, item);
         return this;
     }
 
-    public GUI setGlobalСlickEvent(Consumer<InventoryClickEvent> e)
+    public GUI bottom(int[] slots, ItemStack item, Consumer<InventoryClickEvent> handler)
     {
-        globalClickEvent = e;
+        for (int slot : slots)
+            bottom(owner, slot, item, handler);
         return this;
     }
 
-    public void open(Player player) {
+    public GUI globalClick(Consumer<InventoryClickEvent> handler)
+    {
+        globalClickHandlers.add(handler);
+        return this;
+    }
+
+    public void open(Player player)
+    {
+        if (isPlayerOnly() && !player.equals(owner)) return;
         player.openInventory(inventory);
+        if (onOpen != null) onOpen.run();
+    }
+
+    public void onOpen(Runnable runnable) {
+        this.onOpen = runnable;
+    }
+
+    public void open()
+    {
+        if (owner != null)
+            open(owner);
     }
 
     public void openParent(Player player) {
@@ -114,6 +144,30 @@ public class GUI implements Listener, InventoryHolder
 
     public void setParent(GUI parent) {
         this.parent = parent;
+    }
+
+    public Map<Integer, Consumer<InventoryClickEvent>> getSlotEventMap() {
+        return slotEventMap;
+    }
+
+    public Map<Integer, Consumer<InventoryClickEvent>> getPlayerSlotEventMap() {
+        return playerSlotEventMap;
+    }
+
+    public List<Consumer<InventoryClickEvent>> getGlobalClickHandlers() {
+        return globalClickHandlers;
+    }
+
+    public boolean isPlayerOnly() {
+        return owner != null;
+    }
+
+    public Player getOwner() {
+        return owner;
+    }
+
+    public Runnable getOnOpen() {
+        return onOpen;
     }
 
     @Override

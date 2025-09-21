@@ -125,10 +125,12 @@ public class ItemBuilder implements Builder<ItemStack>
     }
 
     @Deprecated
-    public ItemBuilder setLore(@Nullable List<String> lore)
+    public ItemBuilder setLore(List<String> lore)
     {
         List<String> l = new ArrayList<>();
-        for (String s : lore) l.add(ColorUtil.parse(s));
+        for (String s : lore)
+            if (s != null)
+                l.add(ColorUtil.parse(s));
         meta.setLore(l);
         return this;
     }
@@ -137,7 +139,9 @@ public class ItemBuilder implements Builder<ItemStack>
     public ItemBuilder setLore(String... lore)
     {
         List<String> l = new ArrayList<>();
-        for (String s : lore) l.add(ColorUtil.parse(s));
+        for (String s : lore)
+            if (s != null)
+                l.add(ColorUtil.parse(s));
         meta.setLore(l);
         return this;
     }

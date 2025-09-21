@@ -1,15 +1,20 @@
 package me.eXo8_.kitsunelib.database;
 
 import me.eXo8_.kitsunelib.KitsuneLib;
+import me.eXo8_.kitsunelib.database.dao.Dao;
 
 import java.io.File;
 import java.sql.*;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SQLiteDB implements Database
 {
     private Connection connection;
     private final File file;
+
+    private final Map<Class<? extends Dao<?, ?>>, Dao<?, ?>> daoRegistry = new ConcurrentHashMap<>();
 
     public SQLiteDB(String databaseName) {
         this.file = new File(KitsuneLib.getPlugin().getDataFolder(), databaseName);
@@ -76,5 +81,13 @@ public class SQLiteDB implements Database
     @Override
     public Connection getConnection() {
         return connection;
+    }
+
+    protected <T extends Dao<?, ?>> void registerDao(Class<T> clazz, T dao) {
+        daoRegistry.put(clazz, dao);
+    }
+
+    public <T extends Dao<?, ?>> T getDao(Class<T> clazz) {
+        return (T) daoRegistry.get(clazz);
     }
 }

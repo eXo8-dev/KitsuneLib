@@ -1,4 +1,4 @@
-package me.eXo8_.kitsunelib.gui;
+package me.eXo8_.kitsunelib.gui.object;
 
 public enum ScrollDirection {
     UP, DOWN, LEFT, RIGHT

@@ -1,7 +1,11 @@
 package me.eXo8_.kitsunelib.database;
 
+import me.eXo8_.kitsunelib.database.dao.Dao;
+
 import java.sql.*;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MySQLDB implements Database
 {
@@ -11,6 +15,8 @@ public class MySQLDB implements Database
     private final String database;
     private final String user;
     private final String password;
+
+    private final Map<Class<? extends Dao<?, ?>>, Dao<?, ?>> daoRegistry = new ConcurrentHashMap<>();
 
     public MySQLDB(String host, int port, String database, String user, String password)
     {
@@ -77,5 +83,13 @@ public class MySQLDB implements Database
     @Override
     public Connection getConnection() {
         return connection;
+    }
+
+    protected <T extends Dao<?, ?>> void registerDao(Class<T> clazz, T dao) {
+        daoRegistry.put(clazz, dao);
+    }
+
+    public <T extends Dao<?, ?>> T getDao(Class<T> clazz) {
+        return (T) daoRegistry.get(clazz);
     }
 }

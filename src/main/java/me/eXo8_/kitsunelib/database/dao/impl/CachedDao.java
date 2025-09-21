@@ -7,6 +7,7 @@ import me.eXo8_.kitsunelib.database.Database;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class CachedDao<O, I> extends AbstractDao<O, I>
 {
@@ -22,20 +23,20 @@ public abstract class CachedDao<O, I> extends AbstractDao<O, I>
     }
 
     @Override
-    public Optional<O> get(I id)
-    {
-        O value = cache.get(id, this::loadFromDb);
-        return Optional.ofNullable(value);
+    public Optional<O> get(I id) {
+        return Optional.ofNullable(cache.get(id, key -> loadFromDatabase(key).orElse(null)));
     }
 
-    private O loadFromDb(I id)
+    protected Optional<O> loadFromDatabase(I id)
     {
-        O[] result = (O[])(new Object[1]);
+        AtomicReference<O> result = new AtomicReference<>();
         String idColumn = getIdColumnName();
+
         this.db.executeQuery("SELECT * FROM " + this.table + " WHERE " + idColumn + "=?", (rs) -> {
-            if (rs.next()) result[0] = this.mapRow(rs);
+            if (rs.next()) result.set(this.mapRow(rs));
         }, id);
-        return (O)result[0];
+
+        return Optional.ofNullable(result.get());
     }
 
     @Override
@@ -68,10 +69,12 @@ public abstract class CachedDao<O, I> extends AbstractDao<O, I>
     }
 
     @Override
-    public boolean exists(I id)
-    {
-        if (cache.getIfPresent(id) != null) return true;
-        return super.exists(id);
+    public boolean exists(I id) {
+        return cache.getIfPresent(id) != null || super.exists(id);
+    }
+
+    public void invalidateCache(I id) {
+        cache.invalidate(id);
     }
 
     abstract protected void saveData(O object);

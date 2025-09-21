@@ -1,5 +1,6 @@
 package me.eXo8_.kitsunelib.gui;
 
+import me.eXo8_.kitsunelib.gui.object.ScrollDirection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -55,7 +56,7 @@ public class ScrollGUI extends GUI
                 if (item != null)
                 {
                     int slot = y * 9 + x;
-                    setVisualItem(slot, item);
+                    top(slot, item);
                 }
             }
         }
